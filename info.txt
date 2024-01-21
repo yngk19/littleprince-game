@@ -1,4 +1,0 @@
-The project name is - LittlePrince
-Short Description - There is a hero endlessly running on the earth through the some obstackles. Also we have the progress counter. 
-Techno stack - FreePascal, crt module
-
