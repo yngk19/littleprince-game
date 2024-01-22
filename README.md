@@ -17,15 +17,15 @@ For play you just need a keyboard (arrows or space). Also you can take the tutor
 ## TODO:
 - [x] Hero
 - [x] Earth
-- [] Obstacles
-- [] Clouds
-- [] A simple jump and double-jump
-- [] Main menu
-- [] Tutorial
-- [] In-game menu
-- [] Pause
-- [] Game over
-- [] Progress counter
-- [] Record
-- [] Settings
-- [] Exit
+- [ ] Obstacles
+- [ ] Clouds
+- [ ] A simple jump and double-jump
+- [ ] Main menu
+- [ ] Tutorial
+- [ ] In-game menu
+- [ ] Pause
+- [ ] Game over
+- [ ] Progress counter
+- [ ] Record
+- [ ] Settings
+- [ ] Exit
