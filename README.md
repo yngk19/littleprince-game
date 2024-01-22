@@ -5,11 +5,10 @@ A simple game developed on the FreePascal v.3.2.2
 1. Clone the repo
 2. Change directory on cmd/
 3. Run following commands in the terminal:
-        ```
-        ~$ chmod +x main
-        ~$ ./main
-        ``` 
-4. Enjoy
+   ```
+   ~$ chmod +x main
+   ~$ ./main
+   ``` 
 
 ### How to play
 For play you just need a keyboard (arrows or space). Also you can take the tutorial in the game.
