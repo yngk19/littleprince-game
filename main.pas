@@ -1,3 +1,16 @@
+{
+     0
+    /|\
+     |
+    / /  	  
+		  #         #		0
+         ##     /|\##	   /|\
+          ##     |  ##		|
+          #     /0\ #      / \
+############################################################
+ 	jump        crush      run
+}
+
 program littleprince;
 uses
 	crt;
@@ -6,12 +19,63 @@ type
 		x: integer;
 		y: integer;
 	end;
-	hero = array [1..4] of string;
+	size = record
+		width: integer;
+		height: integer;
+	end;
+	skin = record
+		size: size; 
+		run: array [1..4] of string;
+		jump: array [1..4] of string;
+		crush: array [1..4] of string;
+	end;
+	hero = record
+		location: location;
+		state: integer;
+		jump_counter: integer;
+		stepchange: boolean;
+		skin: skin;
+	end;
 
 const
-	HeroMovementDelay = 100;
-	HeroHeight = 4;
-	HeroWidth = 3;
+	_jumpHeight: integer = 6;
+	_flyDuration: integer = 3;
+	_delay: integer = 60;
+	_heroStateRun: integer = 0;
+	_heroStateJump: integer = 1;
+	_heroStateCrush: integer = 2;
+	_heroHeight: integer = 4;
+	_heroWidth: integer = 3;
+	_heroSkinRun: array [1..4] of string = ('/ \', ' | ', '/|\', ' 0 ');
+	_heroSkinJump: array [1..4] of string = ('/ /', ' | ', '/|\', ' 0 ');
+	_heroSkinCrush: array [1..4] of string = ('/0\', ' | ', '/|\', '   ');
+	_earthBlock: char = '#';
+
+
+{ Init game settings }
+procedure Init(var Hero: hero);
+begin
+	Hero.stepchange := false;
+	Hero.location.x := ScreenWidth - (ScreenWidth div 2) - 10;
+	Hero.location.y := ScreenHeight - 3 * (ScreenHeight div 10);
+	Hero.state := _heroStateRun;
+	Hero.jump_counter := 0;
+	Hero.skin.size.width := _heroWidth;
+	Hero.skin.size.height := _heroHeight;
+	Hero.skin.run := _heroSkinRun;
+	Hero.skin.jump := _heroSkinJump;
+	Hero.skin.crush := _heroSkinCrush;
+	clrscr;
+end;
+
+{ Quit game }
+procedure Quit;
+begin
+	clrscr;
+	GotoXY(1, 1);
+	{ Save the stats }
+	exit;
+end;
 
 { Get the user pressed key id  }
 procedure GetPressedKeyId(var code: integer);
@@ -23,79 +87,130 @@ begin
    	begin
 		symbol := ReadKey;
 	   	code := -ord(symbol);
-	end
-	else
+		exit
+	end;
+	code := ord(symbol);
+end;
+
+procedure ClearHero(var Hero: hero);
+var
+	i: integer;
+begin
+	for i := 1 to Hero.skin.size.height do
 	begin
-		code := ord(symbol);
-	end
+		GotoXY(Hero.location.x, Hero.location.y - i);
+		Write('   ');
+	end;
 end;
 
 { Draw the hero }
-procedure DrawHero(var heroLocX, heroLocY: integer; run: boolean);
+procedure DrawHero(var Hero: hero);
 var	
 	j, i: integer;
-	Hero: array [1..4] of string = ('/ \', ' | ', '/|\', ' 0 ');
 begin
-	if run then
-		Hero[1] := ' | ';
-		run := false;
-	for j := 1 to HeroHeight do
+	if Hero.state = _heroStateRun then
 	begin
-		GotoXY(heroLocX, heroLocY - j);
-		write(Hero[j]);
+		if Hero.stepchange then Hero.skin.run[1] := ' | ';	
+		for j := 1 to Hero.skin.size.height do
+		begin
+			GotoXY(Hero.location.x, Hero.location.y - j);
+			Write(Hero.skin.run[j]);
+		end;
+		Hero.skin.run[1] := '/ \';
+	end
+	else if Hero.state = _heroStateJump then
+	begin
+		ClearHero(Hero);
+		{ JH=6 FD=3 1,2,3,4,5,6 7 8 9 10, 11, 12, 13, 14, 15, }
+		if Hero.jump_counter <= _jumpHeight then
+		begin
+			Hero.location.y := Hero.location.y - 1;
+			for j := 1 to Hero.skin.size.height do
+			begin
+				GotoXY(Hero.location.x, Hero.location.y - j);
+				Write(Hero.skin.jump[j]);
+			end;
+			Hero.jump_counter := Hero.jump_counter + 1;
+		end
+		else if (Hero.jump_counter >= _jumpHeight + 1) and (Hero.jump_counter <= (_jumpHeight + _flyDuration)) then
+		begin
+			for j := 1 to Hero.skin.size.height do
+			begin
+				GotoXY(Hero.location.x, Hero.location.y - j);
+				Write(Hero.skin.jump[j]);
+			end;
+			Hero.jump_counter := Hero.jump_counter + 1;
+		end
+		else if (Hero.jump_counter > (_flyDuration + _jumpHeight)) and (Hero.jump_counter <= (_flyDuration + 2 * _jumpHeight)) then
+		begin
+			Hero.location.y := Hero.location.y + 1;
+			for j := 1 to Hero.skin.size.height do
+			begin
+				GotoXY(Hero.location.x, Hero.location.y - j);
+				Write(Hero.skin.jump[j]);
+			end;
+			Hero.jump_counter := Hero.jump_counter + 1;
+		end
+		else if Hero.jump_counter = (_flyDuration + 2*_jumpHeight + 1) then
+		begin
+			Hero.location.y := Hero.location.y + 1;
+			for j := 1 to Hero.skin.size.height do
+			begin
+				GotoXY(Hero.location.x, Hero.location.y - j);
+				Write(Hero.skin.run[j]);
+			end;
+			Hero.jump_counter := 0;
+			Hero.state := _heroStateRun;
+		end;
+	end
+	else if Hero.state = _heroStateCrush then
+	begin
+		{}
 	end;
+	Hero.stepchange := not Hero.stepchange;
 	GotoXY(1, 1);
 end;
-{
- 0
-/|\
- |
-/ /   #      0
-     ##     /|\
-      ##     |
-      #     / \
-####################
-
-}
 
 { Draw the earth where the hero will run }
-procedure DrawEarth;
+procedure DrawEarth(x, y: integer);
 var
-	x, y, j: integer;
+	i: integer;
 begin
-	x := ScreenWidth;
-	y := ScreenHeight - 3 * (ScreenHeight div 10); 
-	for j := 1 to x do
+	for i := 1 to x do
 	begin
-		GotoXY(j, y);
-	  	write('#')
+		GotoXY(i, y);
+	  	write(_earthBlock);
 	end;
 	GotoXY(1, 1);
 end;
 
 var	
-	run: boolean = true;
-	heroLocation: location;
-	i, heroLocX, heroLocY, pressedKeyId: integer;
+	Prince: hero;
+	{TODO: 
+	 Obstacle: obstackle;
+	 Cloud: cloud;
+	}
+	_earthX: integer;
+	_earthY: integer;
+	i, pressedKeyId: integer;
 begin
-	heroLocation.x := ScreenWidth - (ScreenWidth div 2) - 10;
-	heroLocation.y := ScreenHeight - 3 * (ScreenHeight div 10); 
-	clrscr;
-	{ Main cycle }
+	_earthX := ScreenWidth;
+	_earthY := ScreenHeight - 3 * (ScreenHeight div 10);
+	Init(Prince);
 	repeat
-		run := not run;
 		if KeyPressed then
+		begin
 			GetPressedKeyId(pressedKeyId);
-			{
 			case pressedKeyId of
-				ord(' ') or -72:
-					GetPressedKeyId(pressedKeyId);
-			}
-		DrawEarth;
-		DrawHero(heroLocation.x, heroLocation.y, run);
-		delay(60);
-	until pressedKeyId = ord('q');
-	clrscr;
+				-72:
+				begin
+					Prince.state := _heroStateJump;
+				end;
+			end;
+		end;
+		DrawEarth(_earthX, _earthY);
+		DrawHero(Prince);
+		delay(_delay);
+	until pressedKeyId = -75;
+	Quit;
 end.
-
-
