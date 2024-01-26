@@ -6,6 +6,6 @@ A simple game developed on the FreePascal v.3.2.2
 2. Run following commands in the terminal instead OS windows, darwin, linux:
    ```
    ~$ make "your os"
-   ~$ ./main.pas 
+   ~$ ./main 
    ``` 
 Attention! Before you start make command make sure that you did open your terminal in full screen
