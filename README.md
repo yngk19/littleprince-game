@@ -5,6 +5,7 @@ A simple game developed on the FreePascal v.3.2.2
 1. Clone the repo
 2. Run following commands in the terminal instead OS windows, darwin, linux:
    ```
-   ~$ make "your os" 
+   ~$ make "your os"
+   ~$ ./main.pas 
    ``` 
 Attention! Before you start make command make sure that you did open your terminal in full screen
